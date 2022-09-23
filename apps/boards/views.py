@@ -39,7 +39,7 @@ class BoardsAPI(APIView):
             serializer = BoardListSerailizer(boards, many=True)
 
         try:
-            return Response({"result": "success"}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"msg": "서버에 에러가 발생했습니다."})
@@ -68,7 +68,13 @@ class BoardsAPI(APIView):
 
 class BoardAPI(APIView):
     def get(self, request, id):
-        Response({"result": "ok"}, status=status.HTTP_200_OK)
+        # 게시글 정보 취득
+        board = Board.objects.all().get(index=id, is_active=True)
+        # 게시글 조회수 증가
+        board.views_count += 1
+        board.save()
+        serializer = BoardListSerailizer(board)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id):
         Response({"result": "ok"}, status=status.HTTP_200_OK)
