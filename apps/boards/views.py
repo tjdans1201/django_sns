@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Board
 from ..users.models import User
-from .serializers import BoardCreateSerializer
+from .serializers import BoardCreateSerializer, BoardListSerailizer
 import datetime
 from django.db.models import Q
 
@@ -11,6 +11,33 @@ from django.db.models import Q
 class BoardsAPI(APIView):
     def get(self, request):
         # todo hashtag
+        # ordering 작성일, 좋아요 수, 조회 수 orderBy=
+        # searching search= 제목에 포함된 게시글
+        # filtering hashtags =
+        # pagenation default 10
+        query_params = request.query_params
+        q = Q()
+        q.add(Q(is_active=True), q.AND)
+        if "search" in query_params:
+            q.add(Q(content__contains=query_params["search"]), q.AND)
+        if "hashtags" in query_params:
+            hashtag_list = query_params["hashtags"].split(",")
+            for i in hashtag_list:
+                q.add(Q(hashtag__contains=i), q.AND)
+        # page 번호 체크
+        page = int(request.query_params["page"])
+        count = 10
+        offset = int((count * (page - 1)))
+        if "orderBy" in query_params:
+            boards = (
+                Board.objects.all()
+                .filter(q)
+                .order_by(query_params["orderBy"])[offset : offset + count]
+            )
+        else:
+            boards = Board.objects.all().filter(q).order_by("-created_at")[offset : offset + count]
+            serializer = BoardListSerailizer(boards, many=True)
+
         try:
             return Response({"result": "success"}, status=status.HTTP_200_OK)
         except Exception as e:
