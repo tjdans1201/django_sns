@@ -9,8 +9,8 @@ class Board(models.Model):
     hashtag = models.CharField(max_length=50)
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    heart_count = models.IntegerField()
-    views_count = models.IntegerField()
+    heart_count = models.IntegerField(default=0)
+    views_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
 
