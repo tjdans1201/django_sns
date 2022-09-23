@@ -1,5 +1,4 @@
-from django.urls import path,include
-from . import views
-urlpatterns = [
-    path('', views.hello_world)
-]
+from django.urls import path, include
+from .views import BoardAPI, BoardsAPI
+
+urlpatterns = [path("", BoardsAPI.as_view()), path("/<int:id>", BoardAPI.as_view())]
