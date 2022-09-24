@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from .models import Board, Heart
 from ..users.models import User
 from .serializers import BoardCreateSerializer, BoardListSerailizer, HeartSerializer
-import datetime
 from django.db.models import Q
 from rest_framework.decorators import api_view
 
@@ -64,29 +63,55 @@ class BoardsAPI(APIView):
             return Response({"msg": "게시글이 등록되었습니다."}, status=status.HTTP_201_CREATED)
         except Exception as e:
             print(e)
-            return Response({"msg": "서버에 에러가 발생했습니다."})
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class BoardAPI(APIView):
     def get(self, request, id):
-        # 게시글 정보 취득
-        board = Board.objects.all().get(index=id, is_active=True)
-        # 게시글 조회수 증가
-        board.views_count += 1
-        board.save()
-        serializer = BoardListSerailizer(board)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            # 게시글 정보 취득
+            board = Board.objects.all().get(index=id, is_active=True)
+            # 게시글 조회수 증가
+            board.views_count += 1
+            board.save()
+            serializer = BoardListSerailizer(board)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def put(self, request, id):
-        return Response({"result": "ok"}, status=status.HTTP_200_OK)
+        try:
+            request_body = request.data
+            board = Board.objects.all().get(index=id, is_active=True)
+            if board.writer == request.user:
+                board.title = request_body["title"]
+                board.content = request_body["content"]
+                board.hashtag = request_body["hashtag"].replace("#", "")
+                board.save()
+            else:
+                return Response({"msg": "게시글 수정 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"msg": "게시글이 수정되었습니다."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def delete(self, request, id):
         try:
             # 게시글 정보 취득
             board = Board.objects.all().get(index=id, is_active=True)
             if board.writer == request.user:
-                board.delete()
-            return Response({"result": "ok"}, status=status.HTTP_200_OK)
+                board.is_active = False
+                board.save()
+            else:
+                return Response({"msg": "게시글 삭제 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"msg": "게시글이 삭제되었습니다."}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response(
