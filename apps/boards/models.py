@@ -1,3 +1,4 @@
+from turtle import ondrag
 from django.db import models
 from ..users.models import User
 
@@ -12,6 +13,12 @@ class Board(models.Model):
     heart_count = models.IntegerField(default=0)
     views_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
+
+
+class Heart(models.Model):
+    index = models.AutoField(primary_key=True)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 # Create your models here.

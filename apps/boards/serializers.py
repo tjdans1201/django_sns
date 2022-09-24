@@ -1,7 +1,7 @@
 from dataclasses import field
 from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
-from .models import Board
+from .models import Board, Heart
 import datetime
 
 
@@ -42,3 +42,13 @@ class BoardListSerailizer(serializers.ModelSerializer):
         hashtag_list = obj.hashtag.split(",")
         hashtag = ",".join(["#" + i for i in hashtag_list])
         return hashtag
+
+
+class HeartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Heart
+        fields = [
+            "index",
+            "user",
+            "Heart",
+        ]

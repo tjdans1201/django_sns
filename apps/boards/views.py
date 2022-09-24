@@ -1,11 +1,12 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Board
+from .models import Board, Heart
 from ..users.models import User
-from .serializers import BoardCreateSerializer, BoardListSerailizer
+from .serializers import BoardCreateSerializer, BoardListSerailizer, HeartSerializer
 import datetime
 from django.db.models import Q
+from rest_framework.decorators import api_view
 
 
 class BoardsAPI(APIView):
@@ -77,7 +78,41 @@ class BoardAPI(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id):
-        Response({"result": "ok"}, status=status.HTTP_200_OK)
+        return Response({"result": "ok"}, status=status.HTTP_200_OK)
 
     def delete(self, request, id):
-        Response({"result": "ok"}, status=status.HTTP_200_OK)
+        try:
+            # 게시글 정보 취득
+            board = Board.objects.all().get(index=id, is_active=True)
+            if board.writer == request.user:
+                board.delete()
+            return Response({"result": "ok"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+@api_view(["patch"])
+def give_heart(request, id):
+    # todo: serializer 사용
+    try:
+        boards = Board.objects.filter(index=id, is_active=True)
+        if boards:
+            board = boards[0]
+            heart = Heart.objects.filter(user=request.user.pk, board=board.index)
+            if heart:
+                heart[0].delete()
+                board.heart_count -= 1
+                board.save()
+                return Response({"msg": "좋아요 취소"}, status=status.HTTP_200_OK)
+            else:
+                heart = Heart(user=request.user, board=board)
+                heart.save()
+                board.heart_count += 1
+                board.save()
+                return Response({"msg": "좋아요"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
