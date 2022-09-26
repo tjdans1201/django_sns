@@ -10,6 +10,9 @@ class BoardCreateSerializer(serializers.ModelSerializer):
         model = Board
         fields = ["writer", "title", "content", "hashtag"]
 
+    def create(self, validated_data):
+        return Board.objects.create(**validated_data)
+
 
 class BoardListSerailizer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField()
@@ -48,7 +51,20 @@ class HeartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Heart
         fields = [
-            "index",
             "user",
-            "Heart",
+            "board",
         ]
+
+    def create(self, validated_data):
+        return Heart.objects.create(**validated_data)
+
+
+class BoardHeartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ["heart_count"]
+
+    def update(self, instance, validated_data):
+        instance.heart_count = validated_data.get("heart_count", instance.heart_count)
+        instance.save()
+        return instance
