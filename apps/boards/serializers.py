@@ -68,3 +68,14 @@ class BoardHeartSerializer(serializers.ModelSerializer):
         instance.heart_count = validated_data.get("heart_count", instance.heart_count)
         instance.save()
         return instance
+
+
+class BoardSoftDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ["is_active"]
+
+    def update(self, instance, validated_data):
+        instance.is_active = validated_data.get("is_active", instance.is_active)
+        instance.save()
+        return instance

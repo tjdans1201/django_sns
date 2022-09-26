@@ -11,6 +11,7 @@ from .serializers import (
     BoardListSerailizer,
     HeartSerializer,
     BoardHeartSerializer,
+    BoardSoftDeleteSerializer,
 )
 from django.db.models import Q
 from rest_framework.decorators import api_view
@@ -123,11 +124,31 @@ class BoardAPI(APIView):
             # 게시글 정보 취득
             board = Board.objects.all().get(index=id, is_active=True)
             if board.writer == request.user:
-                board.is_active = False
-                board.save()
+
+                serializer = BoardSoftDeleteSerializer(board, data={"is_active": False})
+                if serializer.is_valid():
+                    serializer.save()
             else:
                 return Response({"msg": "게시글 삭제 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
             return Response({"msg": "게시글이 삭제되었습니다."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def patch(self, request, id):
+        # 게시물 복구 -> is_active False -> True
+        try:
+            # 게시글 정보 취득
+            board = Board.objects.all().get(index=id, is_active=False)
+            if board.writer == request.user:
+                serializer = BoardSoftDeleteSerializer(board, data={"is_active": True})
+                if serializer.is_valid():
+                    serializer.save()
+            else:
+                return Response({"msg": "게시글 복구 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"msg": "게시글이 복구되었습니다."}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response(
