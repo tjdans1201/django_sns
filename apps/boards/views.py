@@ -1,9 +1,7 @@
-from re import search
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from apps.users import serializers
+from rest_framework.permissions import IsAuthenticated
 from .models import Board, Heart
 from ..users.models import User
 from .serializers import (
@@ -15,9 +13,12 @@ from .serializers import (
 )
 from django.db.models import Q
 from rest_framework.decorators import api_view
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 class BoardsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         # 게시물 리스트 조회
         # todo hashtag
@@ -25,35 +26,40 @@ class BoardsAPI(APIView):
         # searching search= 제목에 포함된 게시글
         # filtering hashtags =
         # pagenation default 10
-        query_params = request.query_params
-        # add filter
-        q = Q()
-        q.add(Q(is_active=True), q.AND)
-        if "search" in query_params:
-            q.add(Q(content__contains=query_params["search"]), q.AND)
-        if "hashtags" in query_params:
-            hashtag_list = query_params["hashtags"].split(",")
-            for i in hashtag_list:
-                q.add(Q(hashtag__contains=i), q.AND)
-        # page 번호 체크
-        page = int(request.query_params["page"])
-        count = 10
-        offset = int((count * (page - 1)))
-        if "orderBy" in query_params:
-            boards = (
-                Board.objects.all()
-                .filter(q)
-                .order_by(query_params["orderBy"])[offset : offset + count]
-            )
-        else:
-            boards = Board.objects.all().filter(q).order_by("-created_at")[offset : offset + count]
-            serializer = BoardListSerailizer(boards, many=True)
-
         try:
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            query_params = request.query_params
+            if "page" not in query_params.keys():
+                return Response({"msg": "page를 지정해주세요."}, status=status.HTTP_400_BAD_REQUEST)
+            # add filter
+            q = Q()
+            q.add(Q(is_active=True), q.AND)
+            if "search" in query_params:
+                q.add(Q(content__contains=query_params["search"]), q.AND)
+            if "hashtags" in query_params:
+                hashtag_list = query_params["hashtags"].split(",")
+                for i in hashtag_list:
+                    q.add(Q(hashtag__contains=i), q.AND)
+            # page 번호 체크
+            page = int(request.query_params["page"])
+            count = 10
+            offset = int((count * (page - 1)))
+            if "orderBy" in query_params:
+                boards = (
+                    Board.objects.all()
+                    .filter(q)
+                    .order_by(query_params["orderBy"])[offset : offset + count]
+                )
+            else:
+                boards = (
+                    Board.objects.all().filter(q).order_by("-created_at")[offset : offset + count]
+                )
+                serializer = BoardListSerailizer(boards, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
-            return Response({"msg": "서버에 에러가 발생했습니다."})
+            return Response(
+                {"msg": "서버에 에러가 발생했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def post(self, request):
         # 게시물 등록
@@ -79,6 +85,8 @@ class BoardsAPI(APIView):
 
 
 class BoardAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         # 게시물 상세 조회
         try:
@@ -158,7 +166,6 @@ class BoardAPI(APIView):
 
 @api_view(["patch"])
 def give_heart(request, id):
-    # todo: serializer 사용
     try:
         # board 데이터 취득
         boards = Board.objects.filter(index=id, is_active=True)

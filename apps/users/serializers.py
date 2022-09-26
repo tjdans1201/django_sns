@@ -31,29 +31,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data["password"])
         user.save()
-        token = Token.objects.create(user=user)
+        # token = Token.objects.create(user=user)
         return user
 
 
-class LoginSerializer(serializers.Serializer):
-    """
-    로그인
-    로그인과 함께 토큰 생성
-    """
-
-    email = serializers.CharField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
-
-    def validate(self, data):
-        email = data.get("email")
-        password = data.get("password", None)
-        user = authenticate(email=email, password=password)
-
-        if user:
-            token = Token.objects.get(user=user)
-            return token
-
-        raise serializers.ValidationError({"error": "로그인 할 수 없습니다"})
-
-
-# from rest_framework.
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
