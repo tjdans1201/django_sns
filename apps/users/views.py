@@ -32,7 +32,9 @@ class LoginAPI(generics.GenericAPIView):
             password = request.data["password"]
             user = authenticate(email=email, password=password)
             if user is None:
-                return Response({"message": "존재하지않는 email입니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "email 또는 password가 틀렸습니다."}, status=status.HTTP_400_BAD_REQUEST
+                )
             if user is not None:
                 token = TokenObtainPairSerializer.get_token(user)
                 refresh_token = str(token)
