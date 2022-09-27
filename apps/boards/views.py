@@ -2,8 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import Board, Heart
-from ..users.models import User
+from .models import Board, Heart, Hashtag
 from .serializers import (
     BoardCreateSerializer,
     BoardListSerailizer,
@@ -13,7 +12,6 @@ from .serializers import (
 )
 from django.db.models import Q
 from rest_framework.decorators import api_view
-from rest_framework_simplejwt.tokens import AccessToken
 
 
 class BoardsAPI(APIView):
@@ -30,31 +28,42 @@ class BoardsAPI(APIView):
             query_params = request.query_params
             if "page" not in query_params.keys():
                 return Response({"msg": "page를 지정해주세요."}, status=status.HTTP_400_BAD_REQUEST)
-            # add filter
             q = Q()
+            tag_list = []
+            if "hashtags" in query_params:
+                hashtag_list = query_params["hashtags"].split(",")
+                flg = False
+                tag_list = []
+                for i in hashtag_list:
+                    a = Hashtag.objects.filter(tag_content=i).first()
+                    if a:
+                        tag_list.append(a)
+                    else:
+                        flg = True
+                        break
+                if flg:
+                    return Response({"board_list": []}, status=status.HTTP_200_OK)
+                q.add(Q(tagging__in=tag_list), q.AND)
+            # add filter
             q.add(Q(is_active=True), q.AND)
             if "search" in query_params:
                 q.add(Q(content__contains=query_params["search"]), q.AND)
-            if "hashtags" in query_params:
-                hashtag_list = query_params["hashtags"].split(",")
-                for i in hashtag_list:
-                    q.add(Q(hashtag__contains=i), q.AND)
             # page 번호 체크
             page = int(request.query_params["page"])
             count = 10
             offset = int((count * (page - 1)))
+            boards = Board.objects.filter(q)
+            if tag_list:
+                for i in tag_list:
+                    boards = boards.filter(tagging__in=[i])
             if "orderBy" in query_params:
-                boards = (
-                    Board.objects.all()
-                    .filter(q)
-                    .order_by(query_params["orderBy"])[offset : offset + count]
-                )
+                boards = boards.distinct().order_by(query_params["orderBy"])[
+                    offset : offset + count
+                ]
             else:
-                boards = (
-                    Board.objects.all().filter(q).order_by("-created_at")[offset : offset + count]
-                )
-                serializer = BoardListSerailizer(boards, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                boards = boards.distinct().order_by("-created_at")[offset : offset + count]
+            serializer = BoardListSerailizer(boards, many=True)
+            return Response({"board_list": serializer.data}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response(
@@ -68,11 +77,19 @@ class BoardsAPI(APIView):
             # 필수 파라미터 체크
             if not request_body.keys() >= {"title", "content", "hashtag"}:
                 return Response({"msg": "필수 입력 항목이 부족합니다."}, status=status.HTTP_400_BAD_REQUEST)
-            # 해시태그 가공 후 추가 ex) #test,#code - > test,code
-            request_body["hashtag"] = request_body["hashtag"].replace("#", "")
-            # 작성자 추가
             request_body["writer"] = request.user.id
-            # 게시물 등록
+            request_body["tagging"] = []
+            hashtag_list = request_body["hashtag"].split(",")
+            for i in hashtag_list:
+                if i[0] != "#":
+                    return Response({"msg": "해시태그 형식이 틀렸습니다."}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    tag = Hashtag.objects.filter(tag_content=i[1:]).first()
+                    if tag == None:
+                        tag = Hashtag()
+                        tag.tag_content = i[1:]
+                        tag.save()
+                    request_body["tagging"].append(tag.pk)
             serializer = BoardCreateSerializer(data=request_body)
             if serializer.is_valid():
                 serializer.save()
@@ -95,6 +112,8 @@ class BoardAPI(APIView):
             # 게시글 조회수 증가
             board.views_count += 1
             board.save()
+            tag_list = board.tagging.all()
+            board.hashtag = tag_list
             serializer = BoardListSerailizer(board)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
@@ -107,9 +126,22 @@ class BoardAPI(APIView):
         # 게시물 수정
         try:
             request_body = request.data
-            board = Board.objects.all().get(index=id, is_active=True)
+            board = Board.objects.get(index=id, is_active=True)
             if board.writer == request.user:
-                request_body["hashtag"] = request_body["hashtag"].replace("#", "")
+                request_body["tagging"] = []
+                hashtag_list = request_body["hashtag"].split(",")
+                for i in hashtag_list:
+                    if i[0] != "#":
+                        return Response(
+                            {"msg": "해시태그 형식이 틀렸습니다."}, status=status.HTTP_400_BAD_REQUEST
+                        )
+                    else:
+                        tag = Hashtag.objects.filter(tag_content=i[1:]).first()
+                        if tag == None:
+                            tag = Hashtag()
+                            tag.tag_content = i[1:]
+                            tag.save()
+                        request_body["tagging"].append(tag.pk)
                 request_body["writer"] = request.user.id
                 board_serializer = BoardCreateSerializer(board, request_body)
                 if board_serializer.is_valid():

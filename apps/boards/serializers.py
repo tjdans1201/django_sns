@@ -1,5 +1,3 @@
-from dataclasses import field
-from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
 from .models import Board, Heart
 import datetime
@@ -8,10 +6,14 @@ import datetime
 class BoardCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = ["writer", "title", "content", "hashtag"]
+        fields = ["writer", "title", "content", "tagging"]
 
     def create(self, validated_data):
-        return Board.objects.create(**validated_data)
+        tag_list = validated_data.pop("tagging")
+        board = Board.objects.create(**validated_data)
+        for i in tag_list:
+            board.tagging.add(i)
+        return board
 
 
 class BoardListSerailizer(serializers.ModelSerializer):
@@ -32,17 +34,16 @@ class BoardListSerailizer(serializers.ModelSerializer):
         ]
 
     def get_created_at(self, obj):
-        print(obj)
         created_date = datetime.datetime.strftime(obj.created_at, "%Y-%m-%d")
         return created_date
 
     def get_writer(self, obj):
         writer_nickname = obj.writer.nickname
-        print(obj)
         return writer_nickname
 
     def get_hashtag(self, obj):
-        hashtag_list = obj.hashtag.split(",")
+        hashtag_list = obj.tagging.all()
+        hashtag_list = [i.tag_content for i in hashtag_list]
         hashtag = ",".join(["#" + i for i in hashtag_list])
         return hashtag
 

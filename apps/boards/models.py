@@ -1,13 +1,16 @@
-from turtle import ondrag
 from django.db import models
 from ..users.models import User
 
 
+class Hashtag(models.Model):
+    tag_content = models.CharField(max_length=30)
+
+
 class Board(models.Model):
     index = models.AutoField(primary_key=True)
+    tagging = models.ManyToManyField(Hashtag, related_name="tagged")
     title = models.CharField(max_length=50)
     content = models.TextField()
-    hashtag = models.CharField(max_length=50)
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     heart_count = models.IntegerField(default=0)
