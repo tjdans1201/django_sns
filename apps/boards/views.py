@@ -12,6 +12,7 @@ from .serializers import (
 )
 from django.db.models import Q
 from rest_framework.decorators import api_view
+import json
 
 
 class BoardsAPI(APIView):
@@ -47,7 +48,7 @@ class BoardsAPI(APIView):
             # add filter
             q.add(Q(is_active=True), q.AND)
             if "search" in query_params:
-                q.add(Q(content__contains=query_params["search"]), q.AND)
+                q.add(Q(title__contains=query_params["search"]), q.AND)
             # page 번호 체크
             page = int(request.query_params["page"])
             count = 10
@@ -63,7 +64,10 @@ class BoardsAPI(APIView):
             else:
                 boards = boards.distinct().order_by("-created_at")[offset : offset + count]
             serializer = BoardListSerailizer(boards, many=True)
-            return Response({"board_list": serializer.data}, status=status.HTTP_200_OK)
+            return Response(
+                json.dumps({"board_list": serializer.data}, ensure_ascii=False),
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
             print(e)
             return Response(
@@ -128,6 +132,9 @@ class BoardAPI(APIView):
             request_body = request.data
             board = Board.objects.get(index=id, is_active=True)
             if board.writer == request.user:
+                # 필수 파라미터 체크
+                if not request_body.keys() >= {"title", "content", "hashtag"}:
+                    return Response({"msg": "필수 입력 항목이 부족합니다."}, status=status.HTTP_400_BAD_REQUEST)
                 request_body["tagging"] = []
                 hashtag_list = request_body["hashtag"].split(",")
                 for i in hashtag_list:
@@ -162,9 +169,8 @@ class BoardAPI(APIView):
         # 게시물 삭제(soft delete) -> is_active True -> False
         try:
             # 게시글 정보 취득
-            board = Board.objects.all().get(index=id, is_active=True)
+            board = Board.objects.get(index=id, is_active=True)
             if board.writer == request.user:
-
                 serializer = BoardSoftDeleteSerializer(board, data={"is_active": False})
                 if serializer.is_valid():
                     serializer.save()
@@ -181,7 +187,7 @@ class BoardAPI(APIView):
         # 게시물 복구 -> is_active False -> True
         try:
             # 게시글 정보 취득
-            board = Board.objects.all().get(index=id, is_active=False)
+            board = Board.objects.get(index=id, is_active=False)
             if board.writer == request.user:
                 serializer = BoardSoftDeleteSerializer(board, data={"is_active": True})
                 if serializer.is_valid():
