@@ -286,362 +286,352 @@ class TestViews(TestCase):
         # case_2 성공(page parameter 1) 10개 취득
         result = client.get("/api/boards?page=1")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 1,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 1,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_3 성공(page parameter 1, orderby: 페이지 뷰) 10개 취득
         result = client.get("/api/boards?page=1&orderBy=-views_count")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "modify_test",
-                    "content": "modify_test",
-                    "hashtag": "#first,#modify",
-                    "heart_count": 1,
-                    "views_count": 1,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 1,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "modify_test",
+                "content": "modify_test",
+                "hashtag": "#first,#modify",
+                "heart_count": 1,
+                "views_count": 1,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 1,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_4 성공(page parameter 2) 1개 취득
         result = client.get("/api/boards?page=2")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "modify_test",
-                    "content": "modify_test",
-                    "hashtag": "#first,#modify",
-                    "heart_count": 1,
-                    "views_count": 1,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                }
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "modify_test",
+                "content": "modify_test",
+                "hashtag": "#first,#modify",
+                "heart_count": 1,
+                "views_count": 1,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            }
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_5 성공(search : 테스트) 2개 취득
         result = client.get("/api/boards?page=1&search=테스트")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#맛집",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#맛집",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_6 성공(hashtags : 서울) 5개 취득(index:2,3,4,10,11)
         result = client.get("/api/boards?page=1&hashtags=서울")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 1,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 1,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_7 성공(hashtags : 서울맛집) 2개 취득(index:8,9)
         result = client.get("/api/boards?page=1&hashtags=서울맛집")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_8 성공(hashtags : 서울, 맛집) 2개 취득(index:10,11)
         result = client.get("/api/boards?page=1&hashtags=서울,맛집")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-                {
-                    "title": "안녕",
-                    "content": "test입니다",
-                    "hashtag": "#서울,#맛집",
-                    "heart_count": 1,
-                    "views_count": 0,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                },
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+            {
+                "title": "안녕",
+                "content": "test입니다",
+                "hashtag": "#서울,#맛집",
+                "heart_count": 1,
+                "views_count": 0,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            },
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         # case_9 성공(search : 테스트, hashtags : 서울) 1개 취득
         result = client.get("/api/boards?page=1&search=테스트&hashtags=서울")
         self.assertEqual(result.status_code, 200)
-        exp = {
-            "board_list": [
-                {
-                    "title": "테스트",
-                    "content": "test입니다",
-                    "hashtag": "#서울",
-                    "heart_count": 0,
-                    "views_count": 2,
-                    "writer": "test_nick1",
-                    "created_at": str(datetime.now().date()),
-                }
-            ]
-        }
-        self.assertEqual(json.loads(result.data), exp)
+        exp = [
+            {
+                "title": "테스트",
+                "content": "test입니다",
+                "hashtag": "#서울",
+                "heart_count": 0,
+                "views_count": 2,
+                "writer": "test_nick1",
+                "created_at": str(datetime.now().date()),
+            }
+        ]
+
+        self.assertEqual(json.loads(json.dumps(result.data["board_list"], ensure_ascii=False)), exp)
         print("finish")
